@@ -51,7 +51,7 @@ public final class QueryUtils
 
             // For each entry in the array, extract the desired properties
             // Stop at first 25 results
-            int numberOfEntries = booksJsonObject.getInt("totalItems");
+            int numberOfEntries = booksArray.length();
             if(numberOfEntries > 25)
             {
                 numberOfEntries = 25;
@@ -83,7 +83,7 @@ public final class QueryUtils
 
                 // There could be more than one author
                 // so join them all together
-                JSONArray authorsJson = currentBook.getJSONArray("authors");
+                JSONArray authorsJson = volumeInfo.getJSONArray("authors");
                 String authors = "";
                 for(int j = 0; j < authorsJson.length(); j++)
                 {
@@ -91,7 +91,8 @@ public final class QueryUtils
                 }
 
                 // Add it all to the books array
-                books.add(new Book(authors, title, rating, url));
+                Book book = new Book(authors, title, rating, url);
+                books.add(book);
             }
         }
         catch(JSONException e)
