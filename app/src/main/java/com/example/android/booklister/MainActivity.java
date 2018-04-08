@@ -4,10 +4,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ListView;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity
 {
     // ListView for main activity
     private ListView mListView;
+    private BookAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -17,5 +20,10 @@ public class MainActivity extends AppCompatActivity
 
         // Get the ListView
         mListView = findViewById(R.id.list);
+
+        // Set up the adapter
+        mAdapter = new BookAdapter(this, new ArrayList<Book>());
+
+        mListView.setAdapter(mAdapter);
     }
 }
