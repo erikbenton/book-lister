@@ -2,14 +2,20 @@ package com.example.android.booklister;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity
 {
+    // ListView for main activity
+    private ListView mListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Get the ListView
+        mListView = findViewById(R.id.list);
     }
 }
