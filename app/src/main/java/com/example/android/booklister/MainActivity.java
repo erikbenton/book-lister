@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -22,6 +23,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
 
     // Empty view for the List
     private TextView mEmptyView;
+
+    // Progress Bar view
+    private ProgressBar mProgressBar;
 
     // Adapter for the books
     private BookAdapter mAdapter;
@@ -38,9 +42,10 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get the ListView and its Empty View
+        // Get the ListView, EmptyView, and ProgreesBar
         mListView = findViewById(R.id.list);
         mEmptyView = findViewById(R.id.empty_view);
+        mProgressBar = findViewById(R.id.loading_spinner);
 
         mListView.setEmptyView(mEmptyView);
 
@@ -100,6 +105,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     {
         // Clear the adapter before filling it up
         mAdapter.clear();
+
+        // Hide the Progress Bar
+        mProgressBar.setVisibility(View.GONE);
 
         if(books != null && !books.isEmpty())
         {
