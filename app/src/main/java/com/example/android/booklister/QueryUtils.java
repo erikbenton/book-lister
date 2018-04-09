@@ -87,12 +87,15 @@ public final class QueryUtils
                 String authors = "";
                 for(int j = 0; j < authorsJson.length(); j++)
                 {
-                    authors += authorsJson.getString(j) + " ";
+                    if(j > 0)
+                    {
+                        authors += ", ";
+                    }
+                    authors += authorsJson.getString(j);
                 }
 
                 // Add it all to the books array
-                Book book = new Book(authors, title, rating, url);
-                books.add(book);
+                books.add(new Book(authors, title, rating, url));
             }
         }
         catch(JSONException e)
