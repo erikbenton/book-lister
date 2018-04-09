@@ -1,26 +1,32 @@
 package com.example.android.booklister;
 
-import android.content.AsyncTaskLoader;
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements LoaderCallbacks<List<Book>>
 {
     // ListView for main activity
     private ListView mListView;
+
+    // Adapter for the books
     private BookAdapter mAdapter;
 
+    // Url for getting book data
     private String mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=programming";
+
+    // Book loader ID
+    private static final int BOOK_LOADER_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -35,9 +41,6 @@ public class MainActivity extends AppCompatActivity
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
 
         mListView.setAdapter(mAdapter);
-
-        BookAsyncTask bookAsyncTask = new BookAsyncTask();
-        bookAsyncTask.execute(mBooksUrl);
 
         // Set Click Listener on each item so that when clicked
         // It goes to the "Info URL" of the book
@@ -58,45 +61,54 @@ public class MainActivity extends AppCompatActivity
                 startActivity(openWebpage);
             }
         });
+
+        // Starting a loader manager
+        LoaderManager loaderManager = getLoaderManager();
+
+        // Init the loader
+        loaderManager.initLoader(BOOK_LOADER_ID, null, this);
     }
 
     /**
-     * Creating an Async Task since network can't be accessed on Main Thread
+     * Creating a new Loader
+     * @param id - Id for the loader
+     * @param args
+     * @return Loader
      */
-    private class BookAsyncTask extends AsyncTask<String, Void, List<Book>>
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args)
     {
-        /**
-         * Background request for data
-         * @param urls - URL to fetch data from
-         * @return
-         */
-        @Override
-        protected List<Book> doInBackground(String... urls)
+        // Create a new Book Loader with URL for books
+        return new BookLoader(this, mBooksUrl);
+    }
+
+    /**
+     * Method for adding all the books to the adapter after
+     * all the loader has finished
+     * @param loader - Loader responsible for getting data
+     * @param books - List of books loader returns
+     */
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> books)
+    {
+        // Clear the adapter before filling it up
+        mAdapter.clear();
+
+        if(books != null && !books.isEmpty())
         {
-            // Check to make sure urls isn't empty
-            if(urls.length < 1 || urls[0] == null)
-            {
-                return null;
-            }
-
-            return QueryUtils.fetchQueryData(urls[0]);
-
-        }
-
-        /**
-         * After the background task is done, add books to adapter
-         * @param books
-         */
-        @Override
-        protected void onPostExecute(List<Book> books)
-        {
-            if(books == null)
-            {
-                return;
-            }
-
             mAdapter.addAll(books);
         }
     }
 
+    /**
+     * Method responsible for when the loader is reset
+     * Clears all the adapter data
+     * @param loader - Loader that has been reset
+     */
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader)
+    {
+        // Clear the adapter
+        mAdapter.clear();
+    }
 }
