@@ -1,9 +1,12 @@
 package com.example.android.booklister;
 
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.Loader;
 import android.app.LoaderManager.LoaderCallbacks;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,17 +45,46 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Checking the status of the internet connection
+        // Set up a connectivity manager
+        ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        // Check if network active
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        // Boolean for if the internet connection is active
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
         // Get the ListView, EmptyView, and ProgreesBar
-        mListView = findViewById(R.id.list);
-        mEmptyView = findViewById(R.id.empty_view);
+        mListView    = findViewById(R.id.list);
+        mEmptyView   = findViewById(R.id.empty_view);
         mProgressBar = findViewById(R.id.loading_spinner);
 
+        // Set up the EmptyView
         mListView.setEmptyView(mEmptyView);
 
         // Set up the adapter
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
 
         mListView.setAdapter(mAdapter);
+
+        // If we are connected we are good to go
+        if(isConnected)
+        {
+            // Starting a loader manager
+            LoaderManager loaderManager = getLoaderManager();
+
+            // Init the loader
+            loaderManager.initLoader(BOOK_LOADER_ID, null, this);
+        }
+        else // If not, tell the user
+        {
+            // Hide ProgressBar
+            mProgressBar.setVisibility(View.GONE);
+
+            // Tell the user there is no internet
+            mEmptyView.setText(R.string.no_internet_text);
+        }
 
         // Set Click Listener on each item so that when clicked
         // It goes to the "Info URL" of the book
@@ -73,12 +105,6 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
                 startActivity(openWebpage);
             }
         });
-
-        // Starting a loader manager
-        LoaderManager loaderManager = getLoaderManager();
-
-        // Init the loader
-        loaderManager.initLoader(BOOK_LOADER_ID, null, this);
     }
 
     /**
