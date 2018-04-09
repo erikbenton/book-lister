@@ -38,8 +38,17 @@ public class BookAdapter extends ArrayAdapter<Book>
         // Setup variables for display
         String author = currentBook.getAuthor();
         String title  = currentBook.getTitle();
-        String rating = Double.toString(currentBook.getRating());
-        String url    = currentBook.getUrl();
+
+        String rating;
+
+        if(currentBook.getRating() < 0.0)
+        {
+            rating = "N/A";
+        }
+        else
+        {
+            rating = Double.toString(currentBook.getRating());
+        }
 
         // Inflate the list item if it is null
         if(listItem == null)

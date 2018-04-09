@@ -10,7 +10,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,10 +44,11 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     // Query Button
     private Button mQueryButton;
 
+    // Load manager
+    private LoaderManager mLoaderManager;// = getLoaderManager();
+
     // Url for getting book data
     private String mBooksUrl = "";// "https://www.googleapis.com/books/v1/volumes?q=programming";
-
-    private Context mContext;
 
     // Book loader ID
     private static final int BOOK_LOADER_ID = 1;
@@ -56,12 +59,11 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Set context
-        mContext = this;
-
         // Checking the status of the internet connection
         // Set up a connectivity manager
         ConnectivityManager cm = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        mLoaderManager = getLoaderManager();
 
         // Check if network active
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
@@ -80,6 +82,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         mListView.setEmptyView(mEmptyView);
         mEmptyView.setText("Search for books");
 
+        // Initialize ProgressBar to be non-visible
+        mProgressBar.setVisibility(View.GONE);
+
         // Set up the adapter
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
 
@@ -88,21 +93,26 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // If we are connected we are good to go
         if(isConnected)
         {
-            // Declare loaderManager
-            final LoaderManager loaderManager = getLoaderManager();
+            mQueryInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    boolean handled = false;
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH)
+                    {
+                        performQuery();
+                        handled = true;
+                    }
+                    return handled;
+                }
+            });
 
+            // Set a click listener for when "Search" is clicked
             mQueryButton.setOnClickListener(new Button.OnClickListener()
             {
                 @Override
                 public void onClick(View v)
                 {
-                    String query = mQueryInput.getText().toString();
-                    mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=" + query;
-                    // Starting a loader manager
-
-
-                    // Init the loader
-                    loaderManager.initLoader(BOOK_LOADER_ID, null, MainActivity.this);
+                    performQuery();
                 }
             });
 
@@ -137,6 +147,22 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         });
     }
 
+    private void performQuery()
+    {
+        // Hide the EmptyView
+        mEmptyView.setVisibility(View.GONE);
+
+        //Show ProgressBar
+        mProgressBar.setVisibility(View.VISIBLE);
+
+        // Get query
+        String query = mQueryInput.getText().toString();
+        mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=" + query;
+
+        // Init the loader
+        mLoaderManager.restartLoader(BOOK_LOADER_ID, null, MainActivity.this);
+    }
+
     /**
      * Creating a new Loader
      * @param id - Id for the loader
@@ -162,12 +188,14 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // Clear the adapter before filling it up
         mAdapter.clear();
 
+
         // Hide the Progress Bar
         mProgressBar.setVisibility(View.GONE);
 
         if(books != null && !books.isEmpty())
         {
             mAdapter.addAll(books);
+            mAdapter.notifyDataSetChanged();
         }
         else // Tell the user there are no books found
         {

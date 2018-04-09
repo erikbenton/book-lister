@@ -88,18 +88,28 @@ public final class QueryUtils
                     rating = -1.0;
                 }
 
-                // There could be more than one author
-                // so join them all together
-                JSONArray authorsJson = volumeInfo.getJSONArray("authors");
                 String authors = "";
-                for(int j = 0; j < authorsJson.length(); j++)
+
+                // Try to get all the authors
+                try
                 {
-                    // Adding coma after name if more than 1 author
-                    if(j > 0)
+                    // There could be more than one author
+                    // so join them all together
+                    JSONArray authorsJson = volumeInfo.getJSONArray("authors");
+
+                    for (int j = 0; j < authorsJson.length(); j++)
                     {
-                        authors += ", ";
+                        // Adding coma after name if more than 1 author
+                        if (j > 0)
+                        {
+                            authors += ", ";
+                        }
+                        authors += authorsJson.getString(j);
                     }
-                    authors += authorsJson.getString(j);
+                }
+                catch(JSONException err) // If there are no authors...
+                {
+                    authors = "No listed authors";
                 }
 
                 // Add it all to the books array
