@@ -1,14 +1,18 @@
 package com.example.android.booklister;
 
+import android.content.AsyncTaskLoader;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -31,7 +35,9 @@ public class MainActivity extends AppCompatActivity
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
 
         mListView.setAdapter(mAdapter);
-        mAdapter.addAll(QueryUtils.fetchQueryData(mBooksUrl));
+
+        BookAsyncTask bookAsyncTask = new BookAsyncTask();
+        bookAsyncTask.execute(mBooksUrl);
 
         // Set Click Listener on each item so that when clicked
         // It goes to the "Info URL" of the book
@@ -53,4 +59,44 @@ public class MainActivity extends AppCompatActivity
             }
         });
     }
+
+    /**
+     * Creating an Async Task since network can't be accessed on Main Thread
+     */
+    private class BookAsyncTask extends AsyncTask<String, Void, List<Book>>
+    {
+        /**
+         * Background request for data
+         * @param urls - URL to fetch data from
+         * @return
+         */
+        @Override
+        protected List<Book> doInBackground(String... urls)
+        {
+            // Check to make sure urls isn't empty
+            if(urls.length < 1 || urls[0] == null)
+            {
+                return null;
+            }
+
+            return QueryUtils.fetchQueryData(urls[0]);
+
+        }
+
+        /**
+         * After the background task is done, add books to adapter
+         * @param books
+         */
+        @Override
+        protected void onPostExecute(List<Book> books)
+        {
+            if(books == null)
+            {
+                return;
+            }
+
+            mAdapter.addAll(books);
+        }
+    }
+
 }
