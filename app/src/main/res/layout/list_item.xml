@@ -8,6 +8,7 @@
     <!-- Rating for the Book -->
     <TextView
         android:id="@+id/rating_view"
+        style="@style/RatingStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -23,15 +24,19 @@
         <!-- Title -->
         <TextView
             android:id="@+id/title_view"
+            style="@style/TitleStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             tools:text="Becoming an Android Dev"/>
 
         <!-- Author -->
         <TextView
             android:id="@+id/author_view"
+            style="@style/AuthorStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             tools:text="Erik Benton"/>
 
     </LinearLayout>
@@ -40,7 +45,7 @@
     <ImageView
         android:id="@+id/website_icon"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:src="@drawable/ic_language_black_24dp"/>
+        android:layout_height="wrap_content"/>
+        <!--tools:src="@drawable/ic_language_black_24dp"/>-->
 
 </LinearLayout>

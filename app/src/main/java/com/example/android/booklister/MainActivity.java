@@ -16,8 +16,8 @@ public class MainActivity extends AppCompatActivity
     private ListView mListView;
     private BookAdapter mAdapter;
 
+    // Hardcoded JSON data
     private String jsonData =
-
             "{" +
             "kind: \"books#volumes\"," +
             "totalItems: 3742," +
