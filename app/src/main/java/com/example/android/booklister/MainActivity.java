@@ -12,9 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +36,16 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     // Adapter for the books
     private BookAdapter mAdapter;
 
+    // Query input
+    private EditText mQueryInput;
+
+    // Query Button
+    private Button mQueryButton;
+
     // Url for getting book data
-    private String mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=programming";
+    private String mBooksUrl = "";// "https://www.googleapis.com/books/v1/volumes?q=programming";
+
+    private Context mContext;
 
     // Book loader ID
     private static final int BOOK_LOADER_ID = 1;
@@ -44,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Set context
+        mContext = this;
 
         // Checking the status of the internet connection
         // Set up a connectivity manager
@@ -55,13 +69,16 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // Boolean for if the internet connection is active
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
 
-        // Get the ListView, EmptyView, and ProgreesBar
+        // Get the ListView, EmptyView, ProgressBar, and EditText
         mListView    = findViewById(R.id.list);
         mEmptyView   = findViewById(R.id.empty_view);
         mProgressBar = findViewById(R.id.loading_spinner);
+        mQueryInput  = findViewById(R.id.query_field);
+        mQueryButton = findViewById(R.id.query_button);
 
         // Set up the EmptyView
         mListView.setEmptyView(mEmptyView);
+        mEmptyView.setText("Search for books");
 
         // Set up the adapter
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
@@ -71,11 +88,24 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         // If we are connected we are good to go
         if(isConnected)
         {
-            // Starting a loader manager
-            LoaderManager loaderManager = getLoaderManager();
+            // Declare loaderManager
+            final LoaderManager loaderManager = getLoaderManager();
 
-            // Init the loader
-            loaderManager.initLoader(BOOK_LOADER_ID, null, this);
+            mQueryButton.setOnClickListener(new Button.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    String query = mQueryInput.getText().toString();
+                    mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=" + query;
+                    // Starting a loader manager
+
+
+                    // Init the loader
+                    loaderManager.initLoader(BOOK_LOADER_ID, null, MainActivity.this);
+                }
+            });
+
         }
         else // If not, tell the user
         {
