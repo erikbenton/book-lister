@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
 {
     // ListView for main activity
     private ListView mListView;
+
+    // Empty view for the List
+    private TextView mEmptyView;
 
     // Adapter for the books
     private BookAdapter mAdapter;
@@ -34,8 +38,11 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Get the ListView
+        // Get the ListView and its Empty View
         mListView = findViewById(R.id.list);
+        mEmptyView = findViewById(R.id.empty_view);
+
+        mListView.setEmptyView(mEmptyView);
 
         // Set up the adapter
         mAdapter = new BookAdapter(this, new ArrayList<Book>());
@@ -97,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         if(books != null && !books.isEmpty())
         {
             mAdapter.addAll(books);
+        }
+        else // Tell the user there are no books found
+        {
+            mEmptyView.setText(R.string.empty_view_text);
         }
     }
 
