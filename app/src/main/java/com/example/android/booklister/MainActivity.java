@@ -10,9 +10,11 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -147,6 +149,9 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         });
     }
 
+    /**
+     * Performs the query for the JSON data
+     */
     private void performQuery()
     {
         // Hide the EmptyView
@@ -155,8 +160,25 @@ public class MainActivity extends AppCompatActivity implements LoaderCallbacks<L
         //Show ProgressBar
         mProgressBar.setVisibility(View.VISIBLE);
 
+        // Clears focus from the EditText View
+        mQueryInput.clearFocus();
+
+        // Manager for handling the input
+        InputMethodManager in = (InputMethodManager)MainActivity.this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        // Hides the keyboard
+        in.hideSoftInputFromWindow(mQueryInput.getWindowToken(), 0);
+
         // Get query
         String query = mQueryInput.getText().toString();
+
+        // In case there is a space between words
+        String[] queryWords = query.split(" ");
+
+        // Join them all back together
+        query = TextUtils.join("+", queryWords);
+
+        // Setup up URL string with query
         mBooksUrl = "https://www.googleapis.com/books/v1/volumes?q=" + query;
 
         // Init the loader

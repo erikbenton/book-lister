@@ -88,6 +88,7 @@ public final class QueryUtils
                     rating = -1.0;
                 }
 
+                // String for holding all the authors
                 String authors = "";
 
                 // Try to get all the authors
